@@ -1,0 +1,6 @@
+{
+  "name": "CREOVA",
+  "description": "Everything Creators Need. One Creative Universe — Arabic-first creative tools directory, resource library, social community, and Gemini-powered creative assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

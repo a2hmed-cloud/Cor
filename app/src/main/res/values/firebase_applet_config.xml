@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="firestore_database_id" translatable="false">ai-studio-android-creova-a55fed0e-8350-40e0-bab9-9db51e49ff7e</string>
+    <string name="recaptcha_site_key" translatable="false">6LeUPiouAAAAABlELy81D2lqKcWX_KfNrTryD9_1</string>
+</resources>

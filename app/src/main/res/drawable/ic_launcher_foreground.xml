@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer luminous crescent arc -->
+    <path
+        android:fillColor="#8B5CF6"
+        android:pathData="M54,24 C37.43,24 24,37.43 24,54 C24,70.57 37.43,84 54,84 C63.2,84 71.43,79.85 76.94,73.32 L68.6,66.28 C65.05,70.48 59.82,73.12 54,73.12 C43.44,73.12 34.88,64.56 34.88,54 C34.88,43.44 43.44,34.88 54,34.88 C59.82,34.88 65.05,37.52 68.6,41.72 L76.94,34.68 C71.43,28.15 63.2,24 54,24 Z" />
+    <!-- Inner electric cyan crystal prism -->
+    <path
+        android:fillColor="#22D3EE"
+        android:pathData="M56,39 L74,54 L56,69 L46,54 Z" />
+    <!-- Specular core highlight -->
+    <path
+        android:fillColor="#E0F2FE"
+        android:pathData="M56,45 L66,54 L56,63 L51,54 Z" />
+</vector>

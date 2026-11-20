@@ -1,0 +1,283 @@
+{
+  "entities": {
+    "UserPrivate": {
+      "title": "UserPrivate",
+      "description": "Private user account data and PII isolated strictly to the owning user.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "email": { "type": "string" },
+        "preferredLanguage": { "type": "string", "enum": ["ar", "en"] },
+        "themeMode": { "type": "string", "enum": ["system", "dark", "light"] },
+        "aiModel": { "type": "string" },
+        "accountStatus": { "type": "string", "enum": ["active", "suspended"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "preferredLanguage", "themeMode", "aiModel", "accountStatus", "createdAt", "updatedAt"]
+    },
+    "PublicProfile": {
+      "title": "PublicProfile",
+      "description": "Public creator profile with zero PII.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "username": { "type": "string" },
+        "bio": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "specialty": { "type": "string" },
+        "publicProfile": { "type": "boolean" },
+        "followersCount": { "type": "integer" },
+        "followingCount": { "type": "integer" },
+        "postsCount": { "type": "integer" },
+        "resourcesCount": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "displayName", "username", "publicProfile", "followersCount", "followingCount", "postsCount", "resourcesCount", "createdAt", "updatedAt"]
+    },
+    "CreativeTool": {
+      "title": "CreativeTool",
+      "description": "Verified creative website or software in the CREOVA directory.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "nameAr": { "type": "string" },
+        "description": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "categories": { "type": "array" },
+        "officialUrl": { "type": "string" },
+        "pricing": { "type": "string", "enum": ["free", "freemium", "paid", "open_source"] },
+        "platforms": { "type": "array" },
+        "ratingAvg": { "type": "number" },
+        "ratingCount": { "type": "integer" },
+        "savesCount": { "type": "integer" },
+        "verified": { "type": "boolean" },
+        "lastVerifiedDate": { "type": "string" },
+        "accentHex": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "nameAr", "description", "descriptionAr", "categories", "officialUrl", "pricing", "platforms", "ratingAvg", "ratingCount", "savesCount", "verified", "lastVerifiedDate", "createdAt", "updatedAt"]
+    },
+    "CreativeResource": {
+      "title": "CreativeResource",
+      "description": "Categorized creative resource in the 19-category CREOVA library.",
+      "type": "object",
+      "properties": {
+        "creatorId": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "title": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "description": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "category": { "type": "string" },
+        "tags": { "type": "array" },
+        "previewImageUrl": { "type": "string" },
+        "fileFormat": { "type": "string" },
+        "fileSizeLabel": { "type": "string" },
+        "licenseInfo": { "type": "string" },
+        "downloadUrl": { "type": "string" },
+        "savesCount": { "type": "integer" },
+        "likesCount": { "type": "integer" },
+        "moderationStatus": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["creatorId", "creatorName", "title", "titleAr", "description", "descriptionAr", "category", "tags", "fileFormat", "fileSizeLabel", "licenseInfo", "downloadUrl", "savesCount", "likesCount", "moderationStatus", "createdAt", "updatedAt"]
+    },
+    "CommunityPost": {
+      "title": "CommunityPost",
+      "description": "Creator community post with optional compressed preview image or linked resource.",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorUsername": { "type": "string" },
+        "authorAvatarUrl": { "type": "string" },
+        "postType": { "type": "string", "enum": ["image", "video", "resource", "font_discovery", "design_showcase", "editing_tutorial", "creative_discovery"] },
+        "category": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "tags": { "type": "array" },
+        "mediaDataUrl": { "type": "string" },
+        "linkedUrl": { "type": "string" },
+        "likesCount": { "type": "integer" },
+        "commentsCount": { "type": "integer" },
+        "savesCount": { "type": "integer" },
+        "sharesCount": { "type": "integer" },
+        "moderationStatus": { "type": "string", "enum": ["active", "hidden", "removed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorId", "authorName", "authorUsername", "postType", "category", "title", "description", "tags", "likesCount", "commentsCount", "savesCount", "sharesCount", "moderationStatus", "createdAt", "updatedAt"]
+    },
+    "PostComment": {
+      "title": "PostComment",
+      "description": "Comment or reply on a community post.",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorAvatarUrl": { "type": "string" },
+        "parentCommentId": { "type": "string" },
+        "body": { "type": "string" },
+        "moderationStatus": { "type": "string", "enum": ["active", "removed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["postId", "authorId", "authorName", "body", "moderationStatus", "createdAt", "updatedAt"]
+    },
+    "LikeRecord": {
+      "title": "LikeRecord",
+      "description": "Deterministic per-user like record.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["post", "resource"] },
+        "targetId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "targetType", "targetId", "createdAt"]
+    },
+    "SavedItem": {
+      "title": "SavedItem",
+      "description": "Deterministic per-user saved bookmark for tools, resources, or posts.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["tool", "resource", "post"] },
+        "targetId": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "targetType", "targetId", "title", "createdAt"]
+    },
+    "FollowRecord": {
+      "title": "FollowRecord",
+      "description": "Creator follow relationship.",
+      "type": "object",
+      "properties": {
+        "followerId": { "type": "string" },
+        "followingId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["followerId", "followingId", "createdAt"]
+    },
+    "NotificationItem": {
+      "title": "NotificationItem",
+      "description": "User activity notification.",
+      "type": "object",
+      "properties": {
+        "recipientId": { "type": "string" },
+        "actorId": { "type": "string" },
+        "actorName": { "type": "string" },
+        "type": { "type": "string", "enum": ["like", "comment", "reply", "follow", "moderation"] },
+        "targetId": { "type": "string" },
+        "message": { "type": "string" },
+        "seen": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["recipientId", "actorId", "actorName", "type", "message", "seen", "createdAt"]
+    },
+    "ModerationReport": {
+      "title": "ModerationReport",
+      "description": "User abuse or copyright report.",
+      "type": "object",
+      "properties": {
+        "reporterId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["post", "resource", "user", "comment"] },
+        "targetId": { "type": "string" },
+        "reason": { "type": "string" },
+        "details": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "reviewed", "resolved", "dismissed"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["reporterId", "targetType", "targetId", "reason", "status", "createdAt", "updatedAt"]
+    },
+    "UserBlock": {
+      "title": "UserBlock",
+      "description": "Per-user block record.",
+      "type": "object",
+      "properties": {
+        "blockerId": { "type": "string" },
+        "blockedUserId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["blockerId", "blockedUserId", "createdAt"]
+    },
+    "EngagementEvent": {
+      "title": "EngagementEvent",
+      "description": "Deduplicated per-user per-day engagement event for transparent trending rankings.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["tool", "resource", "post"] },
+        "targetId": { "type": "string" },
+        "eventType": { "type": "string", "enum": ["tool_open", "resource_view", "save", "like", "comment", "share"] },
+        "dayKey": { "type": "string" },
+        "validEvent": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "targetType", "targetId", "eventType", "dayKey", "validEvent", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPrivate" },
+      "description": "Owner-only private user preferences and PII."
+    },
+    "/public_profiles/{userId}": {
+      "schema": { "$ref": "#/entities/PublicProfile" },
+      "description": "Public creator profiles without PII."
+    },
+    "/tools/{toolId}": {
+      "schema": { "$ref": "#/entities/CreativeTool" },
+      "description": "Verified creative tools directory."
+    },
+    "/resources/{resourceId}": {
+      "schema": { "$ref": "#/entities/CreativeResource" },
+      "description": "19-category creative resource library."
+    },
+    "/posts/{postId}": {
+      "schema": { "$ref": "#/entities/CommunityPost" },
+      "description": "Community posts feed."
+    },
+    "/posts/{postId}/comments/{commentId}": {
+      "schema": { "$ref": "#/entities/PostComment" },
+      "description": "Nested comments and replies on community posts."
+    },
+    "/likes/{likeId}": {
+      "schema": { "$ref": "#/entities/LikeRecord" },
+      "description": "Deterministic per-user likes."
+    },
+    "/saved_items/{saveId}": {
+      "schema": { "$ref": "#/entities/SavedItem" },
+      "description": "Deterministic per-user saved bookmarks."
+    },
+    "/follows/{followId}": {
+      "schema": { "$ref": "#/entities/FollowRecord" },
+      "description": "Creator follow graph."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/NotificationItem" },
+      "description": "Recipient-scoped notifications."
+    },
+    "/reports/{reportId}": {
+      "schema": { "$ref": "#/entities/ModerationReport" },
+      "description": "Abuse and copyright reports."
+    },
+    "/blocks/{blockId}": {
+      "schema": { "$ref": "#/entities/UserBlock" },
+      "description": "User block list."
+    },
+    "/engagement_events/{eventId}": {
+      "schema": { "$ref": "#/entities/EngagementEvent" },
+      "description": "Anti-spam deduplicated engagement events."
+    }
+  }
+}
