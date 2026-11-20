@@ -3,7 +3,6 @@ package com.example.data.catalog
 import com.example.domain.model.CommunityPost
 import com.example.domain.model.CreativeResource
 import com.example.domain.model.CreativeTool
-import com.example.domain.model.PostType
 import com.example.domain.model.PublicProfile
 import com.example.domain.model.ResourceCategory
 import com.example.domain.model.ToolCategory
@@ -757,60 +756,6 @@ object CuratedCatalog {
         )
     )
 
-    val editorialPosts: List<CommunityPost> = listOf(
-        CommunityPost(
-            id = "seed_post_arabic_reels",
-            authorId = "creator_tariq_motion",
-            authorName = "طارق الجوهري",
-            authorUsername = "tariq_motion",
-            postType = PostType.EDITING_TUTORIAL.wireValue,
-            category = ToolCategory.VIDEO_EDITING.id,
-            title = "توازن الصوت والألوان للريلز في 3 خطوات على DaVinci",
-            description = "استخدم أولاً فلتر Rec.709 بنسبة 65% فقط، ثم اضبط السطوع في منحنى السطوع واضغط الصوت عند -14 LUFS ليظهر الفيديو بنقاء على الموبايل.",
-            tags = listOf("davinci", "reels", "colorgrading", "arabic"),
-            linkedUrl = "https://www.blackmagicdesign.com/products/davinciresolve",
-            likesCount = 34,
-            commentsCount = 4,
-            savesCount = 21,
-            sharesCount = 6,
-            moderationStatus = "active",
-            seeded = true
-        ),
-        CommunityPost(
-            id = "seed_post_cairo_pairing",
-            authorId = "creator_salma_type",
-            authorName = "سلمى منصور",
-            authorUsername = "salma_type",
-            postType = PostType.FONT_DISCOVERY.wireValue,
-            category = ToolCategory.FONTS.id,
-            title = "دمج خط Cairo للعناوين مع IBM Plex Arabic للنصوص",
-            description = "هذه التوليفة تمنح واجهات التطبيقات والبوسترات توازناً مذهلاً بين الجرأة الهندسية وسهولة قراءة الفقرات الطويلة.",
-            tags = listOf("fonts", "cairo", "ibmplex", "typography"),
-            linkedUrl = "https://fonts.google.com/?subset=arabic",
-            likesCount = 48,
-            commentsCount = 7,
-            savesCount = 39,
-            sharesCount = 11,
-            moderationStatus = "active",
-            seeded = true
-        ),
-        CommunityPost(
-            id = "seed_post_photopea_tip",
-            authorId = "creator_karim_sfx",
-            authorName = "كريم عادل",
-            authorUsername = "karim_sound",
-            postType = PostType.CREATIVE_DISCOVERY.wireValue,
-            category = ToolCategory.GRAPHIC_DESIGN.id,
-            title = "تعديل ملفات PSD الثقيلة من المتصفح مجاناً عبر Photopea",
-            description = "لو شغال على جهاز بمواصفات متوسطة ومحتاج تفتح موك أب PSD وتعدّل سمارت أوبجيكت فوراً، Photopea بيؤدي المهمة بدون تثبيت.",
-            tags = listOf("photopea", "psd", "free_alternative"),
-            linkedUrl = "https://www.photopea.com",
-            likesCount = 29,
-            commentsCount = 3,
-            savesCount = 24,
-            sharesCount = 8,
-            moderationStatus = "active",
-            seeded = true
-        )
-    )
+    // No fabricated community posts: the feed starts empty until real users publish.
+    val editorialPosts: List<CommunityPost> = emptyList()
 }
