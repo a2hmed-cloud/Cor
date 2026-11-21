@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "905578626056-dk9mm7vk8cfnagaeqhppeptn87ghd2kg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aistudio.creova.vqxkrm",
+            "certificate_hash": "02141da8e3474f865fad42101bc5a0beb7864491"
+          }
+        },
+        {
           "client_id": "905578626056-mgo9pge5pnkc3uj4n1tus0oj3i0b7njk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -140,6 +148,12 @@
             "certificate_hash": "be867bca1c11a91457675238b6e39b5b93324abf"
           }
         },
+        {
+          "client_id": "905578626056-0ceprg7h9jbsqjbbag8m4nfc1a5io01j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
         {
           "client_id": "905578626056-0ceprg7h9jbsqjbbag8m4nfc1a5io01j.apps.googleusercontent.com",
           "client_type": 3
