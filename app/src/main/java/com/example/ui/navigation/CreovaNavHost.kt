@@ -1,5 +1,6 @@
 package com.example.ui.navigation
 
+import android.app.Activity
 import android.net.Uri
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -93,6 +94,20 @@ fun CreovaNavHost(
 ) {
     val navController = rememberNavController()
     val context = LocalContext.current
+    // Explicit fallback for custom-scheme post links. Navigation's graph deep link
+    // remains enabled; this covers hosts where the implicit intent was not consumed.
+    LaunchedEffect(Unit) {
+        val incoming = (context as? Activity)?.intent?.data
+        if (incoming?.scheme == "creova" && incoming.host == "post") {
+            val postId = incoming.lastPathSegment?.takeIf { it.isNotBlank() }
+            val alreadyOnTarget = navController.currentDestination?.route == CreovaRoutes.POST_DETAIL
+            if (postId != null && !alreadyOnTarget) {
+                navController.navigate(CreovaRoutes.postDetail(postId)) {
+                    launchSingleTop = true
+                }
+            }
+        }
+    }
     val strings = LocalCreovaStrings.current
     val snackbarHostState = remember { SnackbarHostState() }
     val uiScope = rememberCoroutineScope()
