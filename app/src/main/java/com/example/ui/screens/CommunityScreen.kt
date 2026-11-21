@@ -55,6 +55,7 @@ import com.example.core.i18n.AppLanguage
 import com.example.core.i18n.LocalCreovaStrings
 import com.example.domain.model.CommunityFeedTab
 import com.example.domain.model.CommunityPost
+import com.example.domain.analytics.FeedRankingEngine
 import com.example.ui.components.EmptyStateGlassCard
 import com.example.ui.components.LiquidGlassCard
 import com.example.ui.components.LiquidGlassPill
@@ -71,6 +72,7 @@ fun CommunityScreen(
     likedKeys: Set<String>,
     savedKeys: Set<String>,
     currentUserId: String?,
+    currentUserSpecialty: String = "",
     onOpenPost: (String) -> Unit,
     onOpenCreator: (String) -> Unit,
     onCreatePost: () -> Unit,
@@ -92,11 +94,12 @@ fun CommunityScreen(
     var pageLimit by remember { mutableIntStateOf(10) }
     var pendingDeletePost by remember { mutableStateOf<CommunityPost?>(null) }
 
-    val feedPosts = remember(posts, selectedTab, followingIds) {
+    val feedPosts = remember(posts, selectedTab, followingIds, currentUserSpecialty) {
         when (selectedTab) {
-            CommunityFeedTab.FOR_YOU -> posts.sortedByDescending { it.likesCount * 2 + it.savesCount * 3 + it.commentsCount * 2 }
+            CommunityFeedTab.FOR_YOU -> FeedRankingEngine.rankForYou(posts, currentUserSpecialty, followingIds)
             CommunityFeedTab.FOLLOWING -> posts.filter { it.authorId in followingIds }
-            CommunityFeedTab.TRENDING -> posts.sortedByDescending { it.likesCount + it.sharesCount * 2 }
+                .sortedByDescending { it.createdAt?.seconds ?: 0L }
+            CommunityFeedTab.TRENDING -> FeedRankingEngine.rankTrending(posts)
             CommunityFeedTab.LATEST -> posts.sortedByDescending { it.createdAt?.seconds ?: 0L }
         }
     }
