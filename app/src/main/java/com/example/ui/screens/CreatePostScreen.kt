@@ -198,7 +198,7 @@ fun CreatePostScreen(
                         AsyncImage(
                             model = remember(mediaDataUrl) { mediaDataUrl?.let { value -> if (value.startsWith("data:image/")) Base64.decode(value.substringAfter(","), Base64.DEFAULT) else value } },
                             contentDescription = title,
-                            contentScale = ContentScale.Crop,
+                            contentScale = ContentScale.Fit,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(180.dp)
