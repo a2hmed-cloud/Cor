@@ -36,14 +36,10 @@ jobs:
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Ensure debug keystore exists for local CI signing
+      - name: Restore stable debug keystore
         run: |
-          if [ ! -f debug.keystore ]; then
-            keytool -genkey -v -keystore debug.keystore \
-              -storepass android -alias androiddebugkey -keypass android \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
+          base64 --decode ci/debug.keystore.b64 > debug.keystore
+          keytool -list -v -keystore debug.keystore -storepass android -alias androiddebugkey | grep "SHA1:"
 
       - name: Restore google-services.json if provided via CI secret
         env:
