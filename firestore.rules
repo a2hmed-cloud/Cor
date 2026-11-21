@@ -345,7 +345,7 @@ service cloud.firestore {
                          isAdmin() ||
                          (isOwner(existing().authorId) &&
                           incoming().moderationStatus == existing().moderationStatus &&
-                          incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'category', 'tags', 'mediaDataUrl', 'mediaUrl', 'linkedUrl', 'updatedAt'])) ||
+                          incoming().diff(existing()).affectedKeys().hasOnly(['postType', 'title', 'description', 'category', 'tags', 'mediaDataUrl', 'mediaUrl', 'linkedUrl', 'updatedAt'])) ||
                          (isSignedIn() &&
                           incoming().diff(existing()).affectedKeys().hasOnly(['likesCount', 'updatedAt']) &&
                           (incoming().likesCount == existing().likesCount + 1 || incoming().likesCount == existing().likesCount - 1)) ||
