@@ -152,7 +152,7 @@ fun PostDetailScreen(
                             AsyncImage(
                                 model = remember(post.mediaUrl, post.mediaDataUrl) { post.mediaUrl.takeIf { it.isNotBlank() } ?: post.mediaDataUrl.let { value -> if (value.startsWith("data:image/")) Base64.decode(value.substringAfter(","), Base64.DEFAULT) else value } },
                                 contentDescription = post.title,
-                                contentScale = ContentScale.Crop,
+                                contentScale = ContentScale.Fit,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(220.dp)
