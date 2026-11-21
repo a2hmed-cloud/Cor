@@ -12,8 +12,8 @@ import kotlin.math.max
 
 object ImageCompressor {
 
-    private const val MAX_DIMENSION = 900
-    private const val MAX_BYTES = 210_000
+    private const val MAX_DIMENSION = 1600
+    private const val MAX_BYTES = 4 * 1024 * 1024
 
     suspend fun compressUriToDataUrl(context: Context, uri: Uri): Result<String> =
         withContext(Dispatchers.IO) {
