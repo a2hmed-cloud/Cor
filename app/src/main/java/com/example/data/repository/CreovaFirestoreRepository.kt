@@ -20,6 +20,9 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
+import android.net.Uri
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.CancellationException
@@ -30,7 +33,8 @@ import kotlinx.coroutines.tasks.await
 
 class CreovaFirestoreRepository(
     private val db: FirebaseFirestore,
-    private val auth: FirebaseAuth = Firebase.auth
+    private val auth: FirebaseAuth = Firebase.auth,
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
 ) {
 
     private fun requireUserId(): String =
@@ -425,6 +429,29 @@ class CreovaFirestoreRepository(
             throw e
         } catch (e: Exception) {
             handleFirestoreError(e, OperationType.CREATE, commentRef.path)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun uploadResourceFile(uri: Uri, mimeType: String, onProgress: (Float) -> Unit): Result<String> {
+        val uid = auth.currentUser?.uid
+            ?: return Result.failure(IllegalStateException("Google Sign-In required to upload a resource."))
+        val allowedTypes = setOf("application/pdf", "image/jpeg", "image/png", "image/webp", "font/ttf", "font/otf", "font/woff", "font/woff2")
+        if (mimeType !in allowedTypes) return Result.failure(IllegalArgumentException("Unsupported resource file type."))
+        return try {
+            val objectRef = storage.reference.child("resource_uploads/$uid/${java.util.UUID.randomUUID()}")
+            val metadata = StorageMetadata.Builder().setContentType(mimeType).build()
+            val task = objectRef.putFile(uri, metadata)
+            task.addOnProgressListener { snapshot ->
+                if (snapshot.totalByteCount > 0L) onProgress((snapshot.bytesTransferred.toFloat() / snapshot.totalByteCount).coerceIn(0f, 1f))
+            }
+            task.await()
+            val url = objectRef.downloadUrl.await().toString()
+            onProgress(1f)
+            Result.success(url)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
