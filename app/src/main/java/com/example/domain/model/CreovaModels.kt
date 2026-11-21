@@ -191,6 +191,7 @@ data class CommunityPost(
     val description: String = "",
     val tags: List<String> = emptyList(),
     val mediaDataUrl: String = "",
+    val mediaUrl: String = "",
     val linkedUrl: String = "",
     val likesCount: Long = 0L,
     val commentsCount: Long = 0L,
