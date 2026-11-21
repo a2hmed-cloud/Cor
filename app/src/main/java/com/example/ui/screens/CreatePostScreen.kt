@@ -83,7 +83,7 @@ fun CreatePostScreen(
     var description by remember(initialPost?.id) { mutableStateOf(initialPost?.description.orEmpty()) }
     var tagsRaw by remember(initialPost?.id) { mutableStateOf(initialPost?.tags?.joinToString(", ").orEmpty()) }
     var linkedUrl by remember(initialPost?.id) { mutableStateOf(initialPost?.linkedUrl.orEmpty()) }
-    var mediaDataUrl by remember(initialPost?.id) { mutableStateOf(initialPost?.mediaDataUrl?.takeIf { it.isNotBlank() }) }
+    var mediaDataUrl by remember(initialPost?.id) { mutableStateOf(initialPost?.mediaUrl?.takeIf { it.isNotBlank() } ?: initialPost?.mediaDataUrl?.takeIf { it.isNotBlank() }) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
