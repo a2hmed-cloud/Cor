@@ -397,6 +397,7 @@ class CreovaFirestoreRepository(
 
     suspend fun updatePost(
         postId: String,
+        postType: String,
         category: String,
         title: String,
         description: String,
@@ -423,6 +424,7 @@ class CreovaFirestoreRepository(
             }
             val uploadedMediaUrl = resolvePostMediaUrl(uid, mediaDataUrl)
             val updates = mutableMapOf<String, Any>(
+                "postType" to postType,
                 "category" to category.take(60),
                 "title" to cleanTitle,
                 "description" to cleanDescription,
