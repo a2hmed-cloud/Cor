@@ -83,6 +83,42 @@ fun AiAssistantScreen(
     var inputText by remember { mutableStateOf("") }
     var structuredMode by remember { mutableStateOf(false) }
 
+    // AI is intentionally paused until its provider, reliability, and response quality are ready.
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
+    ) {
+        CreovaTopBar(title = strings.aiTitle, onBack = onBack)
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            LiquidGlassCard(elevated = true, modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Box(modifier = Modifier.size(76.dp), contentAlignment = Alignment.Center) {
+                        LiquidGlassAiOrb(modifier = Modifier.fillMaxSize())
+                        Icon(Icons.Filled.AutoAwesome, contentDescription = null, tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(32.dp))
+                    }
+                    Surface(color = glass.violetAccent.copy(alpha = 0.16f), shape = RoundedCornerShape(999.dp)) {
+                        Text(if (isArabic) "قريبًا" else "COMING SOON", color = glass.violetAccent, style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                    }
+                    Text(if (isArabic) "CREOVA AI بيتجهّز" else "CREOVA AI is in the works", style = MaterialTheme.typography.titleLarge, color = glass.textPrimary)
+                    Text(
+                        if (isArabic) "بنشتغل على تجربة ذكاء اصطناعي موثوقة ومفيدة للمبدعين. هنفتحها لما تكون جاهزة فعلًا." else "We’re building a reliable creative assistant. It will be available when it’s ready.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = glass.textSecondary
+                    )
+                }
+            }
+        }
+    }
+    return
+
     LaunchedEffect(initialPrompt) {
         if (!initialPrompt.isNullOrBlank() && messages.isEmpty()) {
             onSendPrompt(initialPrompt, false)
