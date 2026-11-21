@@ -19,8 +19,8 @@ object FeedRankingEngine {
             val category = normalize(post.category)
             val tags = post.tags.map(::normalize)
             val fieldMatch = interest.isNotBlank() &&
-                (category == interest || category.contains(interest) || interest.contains(category) ||
-                    tags.any { it == interest || it.contains(interest) || interest.contains(it) })
+                (category.isNotBlank() && (category == interest || category.contains(interest) || interest.contains(category))) ||
+                    tags.any { it.isNotBlank() && (it == interest || it.contains(interest) || interest.contains(it)) }
             val ageHours = ((nowMillis - (post.createdAt?.toDate()?.time ?: nowMillis)).coerceAtLeast(0L) / 3_600_000.0)
             val freshness = 24.0 / (24.0 + ageHours)
             val engagement = ln(
