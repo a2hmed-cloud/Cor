@@ -291,6 +291,7 @@ fun CreovaNavHost(
                                 likedKeys = likedKeys,
                                 savedKeys = savedKeys,
                                 currentUserId = currentUser?.uid,
+                                currentUserSpecialty = creators.firstOrNull { it.userId == currentUser?.uid }?.specialty.orEmpty(),
                                 onOpenPost = { id -> navController.navigate(CreovaRoutes.postDetail(id)) },
                                 onOpenCreator = { uid -> navController.navigate(CreovaRoutes.creatorProfile(uid)) },
                                 onCreatePost = {
