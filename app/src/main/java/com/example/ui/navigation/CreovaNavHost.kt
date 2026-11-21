@@ -420,18 +420,25 @@ fun CreovaNavHost(
                         }
 
                         composable(
-                            route = "create_post?postId={postId}",
-                            arguments = listOf(navArgument("postId") {
-                                type = NavType.StringType
-                                nullable = true
-                                defaultValue = null
-                            })
+                            route = "create_post?postId={postId}&draftTitle={draftTitle}&draftDescription={draftDescription}&draftUrl={draftUrl}",
+                            arguments = listOf(
+                                navArgument("postId") { type = NavType.StringType; nullable = true; defaultValue = null },
+                                navArgument("draftTitle") { type = NavType.StringType; nullable = true; defaultValue = null },
+                                navArgument("draftDescription") { type = NavType.StringType; nullable = true; defaultValue = null },
+                                navArgument("draftUrl") { type = NavType.StringType; nullable = true; defaultValue = null }
+                            )
                         ) { entry ->
                             val editingPostId = entry.arguments?.getString("postId")?.let { Uri.decode(it) }
                             val editingPost = posts.firstOrNull { it.id == editingPostId && it.authorId == currentUser?.uid }
+                            val draftTitle = entry.arguments?.getString("draftTitle")?.let { Uri.decode(it) }
+                            val draftDescription = entry.arguments?.getString("draftDescription")?.let { Uri.decode(it) }
+                            val draftUrl = entry.arguments?.getString("draftUrl")?.let { Uri.decode(it) }
                             CreatePostScreen(
                                 language = prefs.language,
                                 initialPost = editingPost,
+                                draftTitle = draftTitle,
+                                draftDescription = draftDescription,
+                                draftUrl = draftUrl,
                                 onBack = { navController.popBackStack() },
                                 onPublish = { postId, postType, category, title, description, tags, mediaDataUrl, linkedUrl ->
                                     if (postId == null) {
@@ -464,7 +471,7 @@ fun CreovaNavHost(
                             SubmitResourceScreen(
                                 language = prefs.language,
                                 onBack = { navController.popBackStack() },
-                                onSubmit = { title, titleAr, desc, descAr, cat, tags, fmt, size, license, url, fileUri, mimeType, onProgress, onFinished ->
+                                onSubmit = { title, titleAr, desc, descAr, cat, tags, fmt, size, license, url, fileUri, mimeType, onProgress, onFinished, onSuccess ->
                                     appViewModel.submitResource(
                                         title = title,
                                         titleAr = titleAr,
@@ -479,10 +486,14 @@ fun CreovaNavHost(
                                         fileUri = fileUri,
                                         mimeType = mimeType,
                                         onProgress = onProgress,
-                                        onFinished = onFinished
-                                    ) {
-                                        navController.popBackStack()
-                                    }
+                                        onFinished = onFinished,
+                                        onSuccess = onSuccess
+                                    )
+                                },
+                                onShareAsPost = { resourceTitle, resourceDescription, resourceUrl ->
+                                    navController.navigate(
+                                        "create_post?draftTitle=${Uri.encode(resourceTitle)}&draftDescription=${Uri.encode(resourceDescription)}&draftUrl=${Uri.encode(resourceUrl)}"
+                                    )
                                 }
                             )
                         }
