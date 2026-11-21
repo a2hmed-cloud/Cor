@@ -427,7 +427,7 @@ fun CreovaNavHost(
                                 defaultValue = null
                             })
                         ) { entry ->
-                            val editingPostId = entry.arguments?.getString("postId")?.let(Uri::decode)
+                            val editingPostId = entry.arguments?.getString("postId")?.let { Uri.decode(it) }
                             val editingPost = posts.firstOrNull { it.id == editingPostId && it.authorId == currentUser?.uid }
                             CreatePostScreen(
                                 language = prefs.language,
