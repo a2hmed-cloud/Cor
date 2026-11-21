@@ -380,6 +380,71 @@ class CreovaFirestoreRepository(
         }
     }
 
+    suspend fun updatePost(
+        postId: String,
+        category: String,
+        title: String,
+        description: String,
+        tags: List<String>,
+        mediaDataUrl: String?,
+        linkedUrl: String?
+    ): Result<Unit> {
+        val uid = auth.currentUser?.uid
+            ?: return Result.failure(IllegalStateException("Google Sign-In required to edit a post."))
+        val cleanTitle = title.trim().take(140)
+        val cleanDescription = description.trim().take(2000)
+        val cleanLink = linkedUrl?.trim()?.takeIf { it.isNotBlank() }
+        if (cleanTitle.length < 2 || cleanDescription.length < 2) {
+            return Result.failure(IllegalArgumentException("Title and description must be at least 2 characters."))
+        }
+        if (cleanLink != null && !SafeUrlLauncher.isSafeHttpsUrl(cleanLink)) {
+            return Result.failure(IllegalArgumentException("Linked URL must be a safe https:// link."))
+        }
+        return try {
+            val ref = db.collection("posts").document(postId)
+            val snapshot = ref.get().await()
+            if (!snapshot.exists() || snapshot.getString("authorId") != uid) {
+                return Result.failure(IllegalAccessException("You can only edit your own posts."))
+            }
+            val updates = mutableMapOf<String, Any>(
+                "category" to category.take(60),
+                "title" to cleanTitle,
+                "description" to cleanDescription,
+                "tags" to tags.map { it.trim().take(24) }.filter { it.isNotBlank() }.take(10),
+                "updatedAt" to FieldValue.serverTimestamp()
+            )
+            if (mediaDataUrl.isNullOrBlank()) updates["mediaDataUrl"] = FieldValue.delete()
+            else if (mediaDataUrl.length <= 350_000) updates["mediaDataUrl"] = mediaDataUrl
+            if (cleanLink == null) updates["linkedUrl"] = FieldValue.delete() else updates["linkedUrl"] = cleanLink
+            ref.update(updates).await()
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            handleFirestoreError(e, OperationType.UPDATE, "posts/$postId")
+            Result.failure(e)
+        }
+    }
+
+    suspend fun deletePost(postId: String): Result<Unit> {
+        val uid = auth.currentUser?.uid
+            ?: return Result.failure(IllegalStateException("Google Sign-In required to delete a post."))
+        return try {
+            val ref = db.collection("posts").document(postId)
+            val snapshot = ref.get().await()
+            if (!snapshot.exists() || snapshot.getString("authorId") != uid) {
+                return Result.failure(IllegalAccessException("You can only delete your own posts."))
+            }
+            ref.delete().await()
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            handleFirestoreError(e, OperationType.DELETE, "posts/$postId")
+            Result.failure(e)
+        }
+    }
+
     suspend fun addComment(
         postId: String,
         postAuthorId: String?,
