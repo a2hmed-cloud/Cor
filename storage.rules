@@ -1,6 +1,16 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    match /post_media/{userId}/{fileId} {
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.size <= 210 * 1024
+                    && request.resource.contentType == 'image/jpeg';
+      allow update: if false;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
     match /resource_uploads/{userId}/{fileId} {
       // Resource files are publicly downloadable once their URL is published in the library.
       allow read: if true;
