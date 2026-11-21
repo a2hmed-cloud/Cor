@@ -124,6 +124,7 @@ service cloud.firestore {
              data.description is string && data.description.size() >= 2 && data.description.size() <= 2000 &&
              isValidStringList(data.tags, 10) &&
              (!('mediaDataUrl' in data) || (data.mediaDataUrl is string && data.mediaDataUrl.size() <= 350000)) &&
+             (!('mediaUrl' in data) || isValidUrl(data.mediaUrl)) &&
              (!('linkedUrl' in data) || isValidUrl(data.linkedUrl)) &&
              data.likesCount is int && data.likesCount >= 0 &&
              data.commentsCount is int && data.commentsCount >= 0 &&
@@ -334,7 +335,7 @@ service cloud.firestore {
                        incoming().sharesCount == 0 &&
                        incoming().moderationStatus == 'active' &&
                        incoming().keys().hasAll(['authorId', 'authorName', 'authorUsername', 'postType', 'category', 'title', 'description', 'tags', 'likesCount', 'commentsCount', 'savesCount', 'sharesCount', 'moderationStatus', 'createdAt', 'updatedAt']) &&
-                       incoming().keys().hasOnly(['authorId', 'authorName', 'authorUsername', 'authorAvatarUrl', 'postType', 'category', 'title', 'description', 'tags', 'mediaDataUrl', 'linkedUrl', 'likesCount', 'commentsCount', 'savesCount', 'sharesCount', 'moderationStatus', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['authorId', 'authorName', 'authorUsername', 'authorAvatarUrl', 'postType', 'category', 'title', 'description', 'tags', 'mediaDataUrl', 'mediaUrl', 'linkedUrl', 'likesCount', 'commentsCount', 'savesCount', 'sharesCount', 'moderationStatus', 'createdAt', 'updatedAt']) &&
                        isValidCommunityPost(incoming());
       allow update: if isValidId(postId) &&
                        isValidCommunityPost(incoming()) &&
@@ -344,7 +345,7 @@ service cloud.firestore {
                          isAdmin() ||
                          (isOwner(existing().authorId) &&
                           incoming().moderationStatus == existing().moderationStatus &&
-                          incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'category', 'tags', 'mediaDataUrl', 'linkedUrl', 'updatedAt'])) ||
+                          incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'category', 'tags', 'mediaDataUrl', 'mediaUrl', 'linkedUrl', 'updatedAt'])) ||
                          (isSignedIn() &&
                           incoming().diff(existing()).affectedKeys().hasOnly(['likesCount', 'updatedAt']) &&
                           (incoming().likesCount == existing().likesCount + 1 || incoming().likesCount == existing().likesCount - 1)) ||
