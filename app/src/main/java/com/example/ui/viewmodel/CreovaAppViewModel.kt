@@ -522,6 +522,35 @@ class CreovaAppViewModel(
         }
     }
 
+    fun updatePost(
+        postId: String,
+        category: String,
+        title: String,
+        description: String,
+        tags: List<String>,
+        mediaDataUrl: String?,
+        linkedUrl: String?,
+        onSuccess: () -> Unit
+    ) {
+        requireAuthOrRun {
+            viewModelScope.launch {
+                firestoreRepository.updatePost(postId, category, title, description, tags, mediaDataUrl, linkedUrl)
+                    .onSuccess { onSuccess() }
+                    .onFailure { _snackbarEvents.tryEmit(it.localizedMessage ?: "Could not update post.") }
+            }
+        }
+    }
+
+    fun deletePost(postId: String, onSuccess: () -> Unit = {}) {
+        requireAuthOrRun {
+            viewModelScope.launch {
+                firestoreRepository.deletePost(postId)
+                    .onSuccess { onSuccess() }
+                    .onFailure { _snackbarEvents.tryEmit(it.localizedMessage ?: "Could not delete post.") }
+            }
+        }
+    }
+
     fun addComment(postId: String, postAuthorId: String?, body: String, parentCommentId: String?) {
         requireAuthOrRun {
             val uid = currentUser.value?.uid ?: return@requireAuthOrRun
