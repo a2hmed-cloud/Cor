@@ -23,6 +23,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageMetadata
 import android.net.Uri
+import android.util.Base64
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.CancellationException
@@ -323,6 +324,21 @@ class CreovaFirestoreRepository(
         }
     }
 
+    private suspend fun resolvePostMediaUrl(uid: String, imageValue: String?): String? {
+        if (imageValue.isNullOrBlank()) return null
+        if (!imageValue.startsWith("data:image/")) {
+            require(SafeUrlLauncher.isSafeHttpsUrl(imageValue)) { "Post image URL must use HTTPS." }
+            return imageValue.take(500)
+        }
+        val encoded = imageValue.substringAfter(",", "")
+        val bytes = Base64.decode(encoded, Base64.DEFAULT)
+        require(bytes.isNotEmpty() && bytes.size <= 210_000) { "Post image is empty or exceeds the allowed size." }
+        val objectRef = storage.reference.child("post_media/$uid/${java.util.UUID.randomUUID()}.jpg")
+        val metadata = StorageMetadata.Builder().setContentType("image/jpeg").build()
+        objectRef.putBytes(bytes, metadata).await()
+        return objectRef.downloadUrl.await().toString()
+    }
+
     suspend fun createPost(
         authorProfile: PublicProfile?,
         postType: String,
@@ -347,6 +363,7 @@ class CreovaFirestoreRepository(
         }
         val docRef = db.collection("posts").document()
         return try {
+            val uploadedMediaUrl = resolvePostMediaUrl(uid, mediaDataUrl)
             val payload = buildMap<String, Any> {
                 put("authorId", uid)
                 put("authorName", (authorProfile?.displayName ?: user.displayName ?: "Creator").take(80))
@@ -358,9 +375,7 @@ class CreovaFirestoreRepository(
                 put("title", cleanTitle)
                 put("description", cleanDesc)
                 put("tags", tags.map { it.trim().take(24) }.filter { it.isNotBlank() }.take(10))
-                if (!mediaDataUrl.isNullOrBlank() && mediaDataUrl.length <= 350_000) {
-                    put("mediaDataUrl", mediaDataUrl)
-                }
+                if (!uploadedMediaUrl.isNullOrBlank()) put("mediaUrl", uploadedMediaUrl)
                 if (cleanLinked != null) put("linkedUrl", cleanLinked)
                 put("likesCount", 0L)
                 put("commentsCount", 0L)
@@ -406,6 +421,7 @@ class CreovaFirestoreRepository(
             if (!snapshot.exists() || snapshot.getString("authorId") != uid) {
                 return Result.failure(IllegalAccessException("You can only edit your own posts."))
             }
+            val uploadedMediaUrl = resolvePostMediaUrl(uid, mediaDataUrl)
             val updates = mutableMapOf<String, Any>(
                 "category" to category.take(60),
                 "title" to cleanTitle,
@@ -413,8 +429,9 @@ class CreovaFirestoreRepository(
                 "tags" to tags.map { it.trim().take(24) }.filter { it.isNotBlank() }.take(10),
                 "updatedAt" to FieldValue.serverTimestamp()
             )
-            if (mediaDataUrl.isNullOrBlank()) updates["mediaDataUrl"] = FieldValue.delete()
-            else if (mediaDataUrl.length <= 350_000) updates["mediaDataUrl"] = mediaDataUrl
+            updates["mediaDataUrl"] = FieldValue.delete()
+            if (uploadedMediaUrl.isNullOrBlank()) updates["mediaUrl"] = FieldValue.delete()
+            else updates["mediaUrl"] = uploadedMediaUrl
             if (cleanLink == null) updates["linkedUrl"] = FieldValue.delete() else updates["linkedUrl"] = cleanLink
             ref.update(updates).await()
             Result.success(Unit)
