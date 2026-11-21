@@ -60,6 +60,7 @@ import com.example.ui.components.LiquidGlassPill
 import com.example.ui.theme.LocalCreovaGlass
 import com.example.ui.theme.RosePaid
 import android.content.Intent
+import android.util.Base64
 
 @Composable
 fun CommunityScreen(
@@ -260,7 +261,7 @@ fun CommunityScreen(
 
                         if (post.mediaDataUrl.isNotBlank()) {
                             AsyncImage(
-                                model = post.mediaDataUrl,
+                                model = remember(post.mediaDataUrl) { post.mediaDataUrl.let { value -> if (value.startsWith("data:image/")) Base64.decode(value.substringAfter(","), Base64.DEFAULT) else value } },
                                 contentDescription = post.title,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
