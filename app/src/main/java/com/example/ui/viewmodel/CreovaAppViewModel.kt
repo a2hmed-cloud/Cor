@@ -550,10 +550,15 @@ class CreovaAppViewModel(
         onFinished: (Boolean) -> Unit,
         onSuccess: () -> Unit
     ) {
-        requireAuthOrRun {
-            val uid = currentUser.value?.uid ?: return@requireAuthOrRun
-            val myProfile = creators.value.firstOrNull { it.userId == uid }
-            viewModelScope.launch {
+        if (currentUser.value == null) {
+            onFinished(false)
+            _authMessage.value = null
+            _showSignInSheet.value = true
+            return
+        }
+        val uid = currentUser.value?.uid ?: return
+        val myProfile = creators.value.firstOrNull { it.userId == uid }
+        viewModelScope.launch {
                 val finalDownloadUrl = if (fileUri != null && !mimeType.isNullOrBlank()) {
                     firestoreRepository.uploadResourceFile(fileUri, mimeType, onProgress).getOrElse {
                         _snackbarEvents.tryEmit(it.localizedMessage ?: "File upload failed.")
@@ -584,7 +589,6 @@ class CreovaAppViewModel(
                     _snackbarEvents.tryEmit(it.localizedMessage ?: "Could not submit resource.")
                     onFinished(false)
                 }
-            }
         }
     }
 
