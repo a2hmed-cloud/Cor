@@ -332,7 +332,7 @@ class CreovaFirestoreRepository(
         }
         val encoded = imageValue.substringAfter(",", "")
         val bytes = Base64.decode(encoded, Base64.DEFAULT)
-        require(bytes.isNotEmpty() && bytes.size <= 210_000) { "Post image is empty or exceeds the allowed size." }
+        require(bytes.isNotEmpty() && bytes.size <= 4 * 1024 * 1024) { "Post image is empty or exceeds the allowed size." }
         val objectRef = storage.reference.child("post_media/$uid/${java.util.UUID.randomUUID()}.jpg")
         val metadata = StorageMetadata.Builder().setContentType("image/jpeg").build()
         objectRef.putBytes(bytes, metadata).await()
