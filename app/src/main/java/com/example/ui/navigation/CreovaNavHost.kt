@@ -434,7 +434,7 @@ fun CreovaNavHost(
                             SubmitResourceScreen(
                                 language = prefs.language,
                                 onBack = { navController.popBackStack() },
-                                onSubmit = { title, titleAr, desc, descAr, cat, tags, fmt, size, license, url ->
+                                onSubmit = { title, titleAr, desc, descAr, cat, tags, fmt, size, license, url, fileUri, mimeType, onProgress, onFinished ->
                                     appViewModel.submitResource(
                                         title = title,
                                         titleAr = titleAr,
@@ -445,7 +445,11 @@ fun CreovaNavHost(
                                         fileFormat = fmt,
                                         fileSizeLabel = size,
                                         licenseInfo = license,
-                                        downloadUrl = url
+                                        downloadUrl = url,
+                                        fileUri = fileUri,
+                                        mimeType = mimeType,
+                                        onProgress = onProgress,
+                                        onFinished = onFinished
                                     ) {
                                         navController.popBackStack()
                                     }
