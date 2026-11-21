@@ -60,6 +60,9 @@ fun CreatePostScreen(
     language: AppLanguage,
     onBack: () -> Unit,
     initialPost: CommunityPost? = null,
+    draftTitle: String? = null,
+    draftDescription: String? = null,
+    draftUrl: String? = null,
     onPublish: (
         postId: String?,
         postType: String,
@@ -77,12 +80,12 @@ fun CreatePostScreen(
     val scope = rememberCoroutineScope()
     val isArabic = language == AppLanguage.AR
 
-    var selectedType by remember(initialPost?.id) { mutableStateOf(initialPost?.let { PostType.fromWire(it.postType) } ?: PostType.DESIGN_SHOWCASE) }
+    var selectedType by remember(initialPost?.id, draftTitle) { mutableStateOf(initialPost?.let { PostType.fromWire(it.postType) } ?: if (!draftTitle.isNullOrBlank()) PostType.RESOURCE else PostType.DESIGN_SHOWCASE) }
     var selectedCategory by remember(initialPost?.id) { mutableStateOf(initialPost?.let { post -> ToolCategory.entries.firstOrNull { it.id == post.category } } ?: ToolCategory.GRAPHIC_DESIGN) }
-    var title by remember(initialPost?.id) { mutableStateOf(initialPost?.title.orEmpty()) }
-    var description by remember(initialPost?.id) { mutableStateOf(initialPost?.description.orEmpty()) }
+    var title by remember(initialPost?.id, draftTitle) { mutableStateOf(initialPost?.title ?: draftTitle.orEmpty()) }
+    var description by remember(initialPost?.id, draftDescription) { mutableStateOf(initialPost?.description ?: draftDescription.orEmpty()) }
     var tagsRaw by remember(initialPost?.id) { mutableStateOf(initialPost?.tags?.joinToString(", ").orEmpty()) }
-    var linkedUrl by remember(initialPost?.id) { mutableStateOf(initialPost?.linkedUrl.orEmpty()) }
+    var linkedUrl by remember(initialPost?.id, draftUrl) { mutableStateOf(initialPost?.linkedUrl ?: draftUrl.orEmpty()) }
     var mediaDataUrl by remember(initialPost?.id) { mutableStateOf(initialPost?.mediaUrl?.takeIf { it.isNotBlank() } ?: initialPost?.mediaDataUrl?.takeIf { it.isNotBlank() }) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
