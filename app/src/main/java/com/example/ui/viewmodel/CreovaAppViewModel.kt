@@ -578,7 +578,7 @@ class CreovaAppViewModel(
         mimeType: String?,
         onProgress: (Float) -> Unit,
         onFinished: (Boolean) -> Unit,
-        onSuccess: () -> Unit
+        onSuccess: (String) -> Unit
     ) {
         if (currentUser.value == null) {
             onFinished(false)
@@ -614,7 +614,7 @@ class CreovaAppViewModel(
                     downloadUrl = finalDownloadUrl
                 ).onSuccess {
                     onFinished(true)
-                    onSuccess()
+                    onSuccess(finalDownloadUrl)
                 }.onFailure {
                     _snackbarEvents.tryEmit(it.localizedMessage ?: "Could not submit resource.")
                     onFinished(false)
