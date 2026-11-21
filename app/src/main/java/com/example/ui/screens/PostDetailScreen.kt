@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -110,7 +111,22 @@ fun PostDetailScreen(
             }
         )
 
-        if (post == null) return@Column
+        if (post == null) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator(color = glass.cyanAccent)
+                Text(
+                    text = if (language == AppLanguage.AR) "جارٍ تحميل المنشور..." else "Loading post...",
+                    color = glass.textSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = 12.dp)
+                )
+            }
+            return@Column
+        }
 
         LazyColumn(
             modifier = Modifier
