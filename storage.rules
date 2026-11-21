@@ -1,0 +1,24 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /resource_uploads/{userId}/{fileId} {
+      // Resource files are publicly downloadable once their URL is published in the library.
+      allow read: if true;
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.size <= 25 * 1024 * 1024
+                    && request.resource.contentType in [
+                      'application/pdf',
+                      'image/jpeg',
+                      'image/png',
+                      'image/webp',
+                      'font/ttf',
+                      'font/otf',
+                      'font/woff',
+                      'font/woff2'
+                    ];
+      allow update: if false;
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
