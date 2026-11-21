@@ -45,6 +45,8 @@ import com.example.core.i18n.LocalCreovaStrings
 import com.example.core.media.ImageCompressor
 import com.example.core.security.SafeUrlLauncher
 import com.example.domain.model.PostType
+import com.example.domain.model.CommunityPost
+import android.util.Base64
 import com.example.domain.model.ToolCategory
 import com.example.ui.components.CreovaTopBar
 import com.example.ui.components.LiquidGlassCard
@@ -57,7 +59,9 @@ import kotlinx.coroutines.launch
 fun CreatePostScreen(
     language: AppLanguage,
     onBack: () -> Unit,
+    initialPost: CommunityPost? = null,
     onPublish: (
+        postId: String?,
         postType: String,
         category: String,
         title: String,
@@ -73,13 +77,13 @@ fun CreatePostScreen(
     val scope = rememberCoroutineScope()
     val isArabic = language == AppLanguage.AR
 
-    var selectedType by remember { mutableStateOf(PostType.DESIGN_SHOWCASE) }
-    var selectedCategory by remember { mutableStateOf(ToolCategory.GRAPHIC_DESIGN) }
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var tagsRaw by remember { mutableStateOf("") }
-    var linkedUrl by remember { mutableStateOf("") }
-    var mediaDataUrl by remember { mutableStateOf<String?>(null) }
+    var selectedType by remember(initialPost?.id) { mutableStateOf(initialPost?.let { PostType.fromWire(it.postType) } ?: PostType.DESIGN_SHOWCASE) }
+    var selectedCategory by remember(initialPost?.id) { mutableStateOf(initialPost?.let { post -> ToolCategory.entries.firstOrNull { it.id == post.category } } ?: ToolCategory.GRAPHIC_DESIGN) }
+    var title by remember(initialPost?.id) { mutableStateOf(initialPost?.title.orEmpty()) }
+    var description by remember(initialPost?.id) { mutableStateOf(initialPost?.description.orEmpty()) }
+    var tagsRaw by remember(initialPost?.id) { mutableStateOf(initialPost?.tags?.joinToString(", ").orEmpty()) }
+    var linkedUrl by remember(initialPost?.id) { mutableStateOf(initialPost?.linkedUrl.orEmpty()) }
+    var mediaDataUrl by remember(initialPost?.id) { mutableStateOf(initialPost?.mediaDataUrl?.takeIf { it.isNotBlank() }) }
     var errorMsg by remember { mutableStateOf<String?>(null) }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
@@ -104,7 +108,7 @@ fun CreatePostScreen(
             .fillMaxSize()
             .statusBarsPadding()
     ) {
-        CreovaTopBar(title = strings.createPost, onBack = onBack)
+        CreovaTopBar(title = if (initialPost == null) strings.createPost else if (isArabic) "تعديل المنشور" else "Edit post", onBack = onBack)
 
         Column(
             modifier = Modifier
@@ -192,7 +196,7 @@ fun CreatePostScreen(
 
                     if (mediaDataUrl != null) {
                         AsyncImage(
-                            model = mediaDataUrl,
+                            model = remember(mediaDataUrl) { mediaDataUrl?.let { value -> if (value.startsWith("data:image/")) Base64.decode(value.substringAfter(","), Base64.DEFAULT) else value } },
                             contentDescription = title,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
@@ -220,6 +224,7 @@ fun CreatePostScreen(
                             errorMsg = null
                             val tags = tagsRaw.split(",").map { it.trim() }.filter { it.isNotBlank() }
                             onPublish(
+                                initialPost?.id,
                                 selectedType.wireValue,
                                 selectedCategory.id,
                                 title.trim(),
@@ -239,7 +244,7 @@ fun CreatePostScreen(
                             .height(52.dp)
                             .testTag("publish_post_button")
                     ) {
-                        Text(strings.publishPost, style = MaterialTheme.typography.labelLarge)
+                        Text(if (initialPost == null) strings.publishPost else if (isArabic) "حفظ التعديلات" else "Save changes", style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }
