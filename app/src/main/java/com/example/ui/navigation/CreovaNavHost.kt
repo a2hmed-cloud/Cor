@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.example.core.i18n.AppLanguage
 import com.example.core.i18n.LocalCreovaStrings
 import com.example.domain.model.ToolCategory
@@ -306,6 +307,14 @@ fun CreovaNavHost(
                                 onSharePost = { post ->
                                     appViewModel.recordShare("post", post.id)
                                 },
+                                onEditPost = { post ->
+                                    appViewModel.requireAuthOrRun {
+                                        navController.navigate("create_post?postId=${Uri.encode(post.id)}")
+                                    }
+                                },
+                                onDeletePost = { post ->
+                                    appViewModel.deletePost(post.id)
+                                },
                                 onReportPost = { post ->
                                     appViewModel.submitReport(
                                         targetType = "post",
@@ -410,21 +419,41 @@ fun CreovaNavHost(
                             )
                         }
 
-                        composable(CreovaRoutes.CREATE_POST) {
+                        composable(
+                            route = "create_post?postId={postId}",
+                            arguments = listOf(navArgument("postId") {
+                                type = NavType.StringType
+                                nullable = true
+                                defaultValue = null
+                            })
+                        ) { entry ->
+                            val editingPostId = entry.arguments?.getString("postId")?.let(Uri::decode)
+                            val editingPost = posts.firstOrNull { it.id == editingPostId && it.authorId == currentUser?.uid }
                             CreatePostScreen(
                                 language = prefs.language,
+                                initialPost = editingPost,
                                 onBack = { navController.popBackStack() },
-                                onPublish = { postType, category, title, description, tags, mediaDataUrl, linkedUrl ->
-                                    appViewModel.createPost(
-                                        postType = postType,
-                                        category = category,
-                                        title = title,
-                                        description = description,
-                                        tags = tags,
-                                        mediaDataUrl = mediaDataUrl,
-                                        linkedUrl = linkedUrl
-                                    ) {
-                                        navController.popBackStack()
+                                onPublish = { postId, postType, category, title, description, tags, mediaDataUrl, linkedUrl ->
+                                    if (postId == null) {
+                                        appViewModel.createPost(
+                                            postType = postType,
+                                            category = category,
+                                            title = title,
+                                            description = description,
+                                            tags = tags,
+                                            mediaDataUrl = mediaDataUrl,
+                                            linkedUrl = linkedUrl
+                                        ) { navController.popBackStack() }
+                                    } else {
+                                        appViewModel.updatePost(
+                                            postId = postId,
+                                            category = category,
+                                            title = title,
+                                            description = description,
+                                            tags = tags,
+                                            mediaDataUrl = mediaDataUrl,
+                                            linkedUrl = linkedUrl
+                                        ) { navController.popBackStack() }
                                     }
                                 }
                             )
@@ -536,7 +565,8 @@ fun CreovaNavHost(
 
                         composable(
                             route = CreovaRoutes.POST_DETAIL,
-                            arguments = listOf(navArgument("postId") { type = NavType.StringType })
+                            arguments = listOf(navArgument("postId") { type = NavType.StringType }),
+                            deepLinks = listOf(navDeepLink { uriPattern = "creova://post/{postId}" })
                         ) { entry ->
                             val postId = Uri.decode(entry.arguments?.getString("postId").orEmpty())
                             val post = posts.firstOrNull { it.id == postId }
