@@ -234,7 +234,7 @@ fun SubmitResourceScreen(
                         )
                     }
                     if (isSubmitting && selectedFileUri != null) {
-                        LinearProgressIndicator(progress = { uploadProgress }, modifier = Modifier.fillMaxWidth())
+                        LinearProgressIndicator(progress = uploadProgress, modifier = Modifier.fillMaxWidth())
                         Text("${(uploadProgress * 100).toInt()}%")
                     }
 
