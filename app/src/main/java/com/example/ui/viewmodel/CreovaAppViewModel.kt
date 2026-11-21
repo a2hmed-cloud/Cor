@@ -524,6 +524,7 @@ class CreovaAppViewModel(
 
     fun updatePost(
         postId: String,
+        postType: String,
         category: String,
         title: String,
         description: String,
@@ -534,7 +535,7 @@ class CreovaAppViewModel(
     ) {
         requireAuthOrRun {
             viewModelScope.launch {
-                firestoreRepository.updatePost(postId, category, title, description, tags, mediaDataUrl, linkedUrl)
+                firestoreRepository.updatePost(postId, postType, category, title, description, tags, mediaDataUrl, linkedUrl)
                     .onSuccess { onSuccess() }
                     .onFailure { _snackbarEvents.tryEmit(it.localizedMessage ?: "Could not update post.") }
             }
