@@ -1,6 +1,7 @@
 package com.example.ui.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.lifecycle.ViewModel
@@ -543,12 +544,27 @@ class CreovaAppViewModel(
         fileSizeLabel: String,
         licenseInfo: String,
         downloadUrl: String,
+        fileUri: Uri?,
+        mimeType: String?,
+        onProgress: (Float) -> Unit,
+        onFinished: (Boolean) -> Unit,
         onSuccess: () -> Unit
     ) {
         requireAuthOrRun {
             val uid = currentUser.value?.uid ?: return@requireAuthOrRun
             val myProfile = creators.value.firstOrNull { it.userId == uid }
             viewModelScope.launch {
+                val finalDownloadUrl = if (fileUri != null && !mimeType.isNullOrBlank()) {
+                    firestoreRepository.uploadResourceFile(fileUri, mimeType, onProgress).getOrElse {
+                        _snackbarEvents.tryEmit(it.localizedMessage ?: "File upload failed.")
+                        onFinished(false)
+                        return@launch
+                    }
+                } else if (fileUri != null) {
+                    _snackbarEvents.tryEmit("Unsupported file type.")
+                    onFinished(false)
+                    return@launch
+                } else downloadUrl
                 firestoreRepository.submitResource(
                     creatorProfile = myProfile,
                     title = title,
@@ -560,11 +576,13 @@ class CreovaAppViewModel(
                     fileFormat = fileFormat,
                     fileSizeLabel = fileSizeLabel,
                     licenseInfo = licenseInfo,
-                    downloadUrl = downloadUrl
+                    downloadUrl = finalDownloadUrl
                 ).onSuccess {
+                    onFinished(true)
                     onSuccess()
                 }.onFailure {
                     _snackbarEvents.tryEmit(it.localizedMessage ?: "Could not submit resource.")
+                    onFinished(false)
                 }
             }
         }
