@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -25,6 +26,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,8 +78,10 @@ fun SubmitResourceScreen(
         fileUri: Uri?,
         mimeType: String?,
         onProgress: (Float) -> Unit,
-        onFinished: (Boolean) -> Unit
-    ) -> Unit
+        onFinished: (Boolean) -> Unit,
+        onSuccess: (String) -> Unit
+    ) -> Unit,
+    onShareAsPost: (String, String, String) -> Unit
 ) {
     val glass = LocalCreovaGlass.current
     val strings = LocalCreovaStrings.current
@@ -99,6 +103,7 @@ fun SubmitResourceScreen(
     var selectedMimeType by remember { mutableStateOf<String?>(null) }
     var isSubmitting by remember { mutableStateOf(false) }
     var uploadProgress by remember { mutableStateOf(0f) }
+    var submittedDownloadUrl by remember { mutableStateOf<String?>(null) }
 
     val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) {
@@ -269,7 +274,8 @@ fun SubmitResourceScreen(
                                 selectedCategory.id, tags, format.trim(), fileSize.trim(), license.trim(),
                                 downloadUrl.trim(), selectedFileUri, selectedMimeType,
                                 { progress -> uploadProgress = progress.coerceIn(0f, 1f) },
-                                { success -> isSubmitting = false; if (!success) uploadProgress = 0f }
+                                { success -> isSubmitting = false; if (!success) uploadProgress = 0f },
+                                { finalUrl -> submittedDownloadUrl = finalUrl }
                             )
                         },
                         shape = RoundedCornerShape(18.dp),
@@ -287,5 +293,28 @@ fun SubmitResourceScreen(
                 }
             }
         }
+    }
+
+    submittedDownloadUrl?.let { resourceUrl ->
+        AlertDialog(
+            onDismissRequest = { submittedDownloadUrl = null },
+            title = { Text(if (isArabic) "تمت إضافة السورس بنجاح" else "Resource added successfully") },
+            text = { Text(if (isArabic) "تحب تشارك السورس ده في بوست على المجتمع؟" else "Would you like to share this resource in a community post?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    submittedDownloadUrl = null
+                    onShareAsPost(
+                        title.trim().ifBlank { titleAr.trim() },
+                        description.trim(),
+                        resourceUrl
+                    )
+                }) { Text(if (isArabic) "أضفه في بوست" else "Share in a post") }
+            },
+            dismissButton = {
+                TextButton(onClick = { submittedDownloadUrl = null }) {
+                    Text(if (isArabic) "مش دلوقتي" else "Not now")
+                }
+            }
+        )
     }
 }
