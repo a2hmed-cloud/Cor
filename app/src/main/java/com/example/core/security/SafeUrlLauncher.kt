@@ -16,7 +16,7 @@ object SafeUrlLauncher {
         if (value == "localhost" || value.endsWith(".localhost") || value.endsWith(".local")) return true
         if (value.contains(":")) return true // Reject IP-literal IPv6 destinations.
         val parts = value.split(".")
-        if (parts.size == 4 && parts.all { it.toIntOrNull() in 0..255 }) {
+        if (parts.size == 4 && parts.all { part -> part.toIntOrNull()?.let { it in 0..255 } == true }) {
             val a = parts[0].toInt()
             val b = parts[1].toInt()
             return a == 10 || a == 127 || (a == 192 && b == 168) ||
