@@ -244,7 +244,7 @@ service cloud.firestore {
 
     // --- PUBLIC CREATOR PROFILES (NO PII) ---
     match /public_profiles/{userId} {
-      allow get: if isValidId(userId);
+      allow get: if isValidId(userId) && (existing().publicProfile == true || isOwner(userId) || isAdmin());
       allow list: if existing().publicProfile == true;
       allow create: if isValidId(userId) &&
                        isOwner(userId) &&
