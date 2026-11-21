@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -76,6 +77,8 @@ fun CommunityScreen(
     onToggleLikePost: (CommunityPost) -> Unit,
     onToggleSavePost: (CommunityPost) -> Unit,
     onSharePost: (CommunityPost) -> Unit,
+    onEditPost: (CommunityPost) -> Unit,
+    onDeletePost: (CommunityPost) -> Unit,
     onReportPost: (CommunityPost) -> Unit,
     onBlockAuthor: (String) -> Unit,
     contentPadding: PaddingValues
@@ -87,6 +90,7 @@ fun CommunityScreen(
 
     var selectedTab by remember { mutableStateOf(CommunityFeedTab.FOR_YOU) }
     var pageLimit by remember { mutableIntStateOf(10) }
+    var pendingDeletePost by remember { mutableStateOf<CommunityPost?>(null) }
 
     val feedPosts = remember(posts, selectedTab, followingIds) {
         when (selectedTab) {
@@ -215,17 +219,32 @@ fun CommunityScreen(
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                     )
                                 }
-                                if (currentUserId != post.authorId) {
-                                    IconButton(onClick = { menuOpen = true }) {
-                                        Icon(
-                                            imageVector = Icons.Filled.MoreVert,
-                                            contentDescription = "More",
-                                            tint = glass.textSecondary
-                                        )
-                                        DropdownMenu(
-                                            expanded = menuOpen,
-                                            onDismissRequest = { menuOpen = false }
-                                        ) {
+                                IconButton(onClick = { menuOpen = true }) {
+                                    Icon(
+                                        imageVector = Icons.Filled.MoreVert,
+                                        contentDescription = "More",
+                                        tint = glass.textSecondary
+                                    )
+                                    DropdownMenu(
+                                        expanded = menuOpen,
+                                        onDismissRequest = { menuOpen = false }
+                                    ) {
+                                        if (currentUserId == post.authorId) {
+                                            DropdownMenuItem(
+                                                text = { Text(if (isArabic) "تعديل المنشور" else "Edit post") },
+                                                onClick = {
+                                                    menuOpen = false
+                                                    onEditPost(post)
+                                                }
+                                            )
+                                            DropdownMenuItem(
+                                                text = { Text(if (isArabic) "حذف المنشور" else "Delete post") },
+                                                onClick = {
+                                                    menuOpen = false
+                                                    pendingDeletePost = post
+                                                }
+                                            )
+                                        } else {
                                             DropdownMenuItem(
                                                 text = { Text(strings.report) },
                                                 onClick = {
@@ -305,7 +324,7 @@ fun CommunityScreen(
                                 IconButton(onClick = {
                                     val sendIntent = Intent(Intent.ACTION_SEND).apply {
                                         type = "text/plain"
-                                        putExtra(Intent.EXTRA_TEXT, "${post.title}\n${post.description}\n— CREOVA")
+                                        putExtra(Intent.EXTRA_TEXT, "${post.title}\n${post.description}\ncreova://post/${post.id}")
                                     }
                                     context.startActivity(Intent.createChooser(sendIntent, strings.share))
                                     onSharePost(post)
@@ -341,5 +360,24 @@ fun CommunityScreen(
                 }
             }
         }
+    }
+
+    pendingDeletePost?.let { post ->
+        AlertDialog(
+            onDismissRequest = { pendingDeletePost = null },
+            title = { Text(if (isArabic) "حذف المنشور؟" else "Delete post?") },
+            text = { Text(if (isArabic) "مش هتقدر ترجع المنشور بعد حذفه." else "This post will be permanently removed.") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    pendingDeletePost = null
+                    onDeletePost(post)
+                }) { Text(if (isArabic) "حذف" else "Delete", color = RosePaid) }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { pendingDeletePost = null }) {
+                    Text(if (isArabic) "إلغاء" else "Cancel")
+                }
+            }
+        )
     }
 }
