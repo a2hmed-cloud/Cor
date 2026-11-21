@@ -5,7 +5,7 @@ service firebase.storage {
       allow read: if true;
       allow create: if request.auth != null
                     && request.auth.uid == userId
-                    && request.resource.size <= 210 * 1024
+                    && request.resource.size <= 4 * 1024 * 1024
                     && request.resource.contentType == 'image/jpeg';
       allow update: if false;
       allow delete: if request.auth != null && request.auth.uid == userId;
