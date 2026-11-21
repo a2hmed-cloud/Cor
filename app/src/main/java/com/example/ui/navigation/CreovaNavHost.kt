@@ -447,6 +447,7 @@ fun CreovaNavHost(
                                     } else {
                                         appViewModel.updatePost(
                                             postId = postId,
+                                            postType = postType,
                                             category = category,
                                             title = title,
                                             description = description,
